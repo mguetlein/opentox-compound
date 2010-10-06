@@ -7,7 +7,7 @@ ENV["CLASSPATH"] = "#{ENV["CLASSPATH"]}:#{java_dir}:#{cdk}:#{jchempaint}"
 
 require 'rubygems'
 require 'rjb'
-gem "opentox-ruby-api-wrapper", "= 1.6.5"
+gem "opentox-ruby-api-wrapper", "= 1.6.2.1"
 require 'opentox-ruby-api-wrapper'
 
 #set :lock, true # avoid JVM memory allocation problems
@@ -126,6 +126,9 @@ get %r{/(.+)} do |inchi| # catches all remaining get requests
     response['Content-Type'] = "text/plain"
     uri = File.join @@cactus_uri,inchi,"names"
     RestClient.get(uri).body
+  when /text\/html/
+    response['Content-Type'] = 'text/html'
+    OpenTox.text_to_html OpenTox::Compound.new(:inchi => inchi).smiles
   else
     halt 400, "Unsupported MIME type '#{request.env['HTTP_ACCEPT']}'"
   end
